@@ -16,8 +16,10 @@
     "@mui/icons-material": "^7.1.0",
     "@mui/material": "^7.1.0",
     "@mui/styled-engine-sc": "^7.1.0",
+    "@mui/system": "^7.1.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-hook-form": "^7.56.4",
     "react-router-dom": "^7.6.0",
     "styled-components": "^6.1.18"
   },
