@@ -1,31 +1,39 @@
 import { useNavigate } from "react-router-dom";
-import { Alert, Box, Button, FormControl, FormHelperText, Paper, Stack, TextField, Typography } from "@mui/material";
+import { Alert, Box, Button, FormControl, FormHelperText, MenuItem, Paper, Select, Stack, TextField, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
 import LoginIcon from "@mui/icons-material/Login";
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import type { User } from "../model/User";
-import { createUser } from "../services/auth-service";
+import { createUser, login } from "../services/auth-service";
 import dayjs from "dayjs";
 import { useGlobalAlert } from "../common/AlertProvider";
 import type { AxiosError } from "axios";
 
 
-type FormValues = {
+type LoginFormValues = {
     username: string;
     password: string;
 };
 
 
 const LoginPage = () => {
-
+    const { showAlert } = useGlobalAlert();
     const navigate = useNavigate();
-    const { control, handleSubmit, formState: { errors }} = useForm<FormValues>({ defaultValues: { username: "",password: "", }});
+    const { control, handleSubmit, formState: { errors } } = useForm<LoginFormValues>({ defaultValues: { username: "", password: "", } });
     const [enableCreateUser, setEnableCreateUser] = React.useState(false);
 
-    const handleLogin = async (data: FormValues) => {
-        navigate("dashboard");
+    const handleLogin = async (data: LoginFormValues) => {
+        try {
+            const response = await login(data);
+            if (response.data) {
+                navigate("dashboard");
+            }
+        } catch (err) {
+            const error = err as AxiosError;
+            showAlert(`${error.response?.data}`, "error")
+        }
     };
 
     const handleUserCreation = () => {
@@ -124,7 +132,7 @@ function CreateUser(props: { enableCreateUser: boolean, setEnableCreateUser: Rea
 
     const { showAlert } = useGlobalAlert();
     const { control, handleSubmit, formState: { errors } } = useForm<User>({
-        defaultValues: {  id: "",username: "", password: "",name: "", email: "",role: "ADMIN", createdAt: dayjs(), updatedAt: dayjs()}
+        defaultValues: { id: "", username: "", password: "", name: "", email: "", role: "", createdAt: dayjs() }
     });
 
     const handleCreateUser = async (user: User) => {
@@ -133,6 +141,7 @@ function CreateUser(props: { enableCreateUser: boolean, setEnableCreateUser: Rea
             if (response.status === 200) {
                 showAlert(`User has been created successfully.`, "success")
             }
+            props.handleBackToLogin();
         } catch (err: unknown) {
             const error = err as AxiosError;
             showAlert(`${error.response?.data}`, "error")
@@ -140,85 +149,102 @@ function CreateUser(props: { enableCreateUser: boolean, setEnableCreateUser: Rea
     };
 
     return (
-            <form onSubmit={handleSubmit(handleCreateUser)} noValidate>
+        <form onSubmit={handleSubmit(handleCreateUser)} noValidate>
 
-                <Grid container spacing={2}>
+            <Grid container spacing={2}>
 
-                    <Grid size={12}>
-                        <Typography textAlign="left" sx={{ fontWeight: "semibold", fontSize: "15px", mb: "2px", mt: "2px", color: "#2D2D2D" }}>
-                            Username{" "}<Box component="span" sx={{ color: "red" }}>*</Box>
-                        </Typography>
-                        <FormControl fullWidth error={!!errors.username} size="small" >
-                            <Controller name="username" defaultValue="" control={control} rules={{ required: "Username is required." }}
-                                render={({ field }) => (
-                                    <TextField {...field} size="small" slotProps={{
-                                        input: { inputProps: { maxLength: 50 } }
-                                    }} />
-                                )}
-                            />
-                            <FormHelperText>{errors.username?.message}</FormHelperText>
-                        </FormControl>
-                    </Grid>
-
-                    <Grid size={12}>
-                        <Typography textAlign="left" sx={{ fontWeight: "semibold", fontSize: "15px", mb: "2px", mt: "2px", color: "#2D2D2D" }}>Password{" "}<Box component="span" sx={{ color: "red" }}>*</Box></Typography>
-                        <FormControl fullWidth error={!!errors.password} size="small">
-                            <Controller name="password" defaultValue="" control={control} rules={{
-                                required: "Password is required.",
-                                pattern: {
-                                    value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/,
-                                    message: "Must contain 8+ characters, uppercase, lowercase, number, and special character.",
-                                },
-                            }}
-                                render={({ field }) => (
-                                    <TextField {...field} type="password" size="small" slotProps={{
-                                        input: { inputProps: { maxLength: 100 } }
-                                    }} />
-                                )}
-                            />
-                            <FormHelperText>{errors.password?.message}</FormHelperText>
-                        </FormControl>
-                    </Grid>
-                    <Grid size={12}>
-                        <Typography textAlign="left" sx={{ fontWeight: "semibold", fontSize: "15px", mb: "2px", mt: "2px", color: "#2D2D2D" }}>Name</Typography>
-                        <FormControl fullWidth size="small">
-                            <Controller name="name" defaultValue="" control={control}
-                                render={({ field }) => (
-                                    <TextField {...field} type="text" size="small" slotProps={{
-                                        input: { inputProps: { maxLength: 100 } }
-                                    }} />
-                                )}
-                            />
-                        </FormControl>
-                    </Grid>
-                    <Grid size={12}>
-                        <Typography textAlign="left" sx={{ fontWeight: "semibold", fontSize: "15px", mb: "2px", mt: "2px", color: "#2D2D2D" }}>Email</Typography>
-                        <FormControl fullWidth error={!!errors.email} size="small">
-                            <Controller name="email" defaultValue="" control={control} rules={{
-                                pattern: {
-                                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                                    message: "Please add valid email.",
-                                },
-                            }}
-                                render={({ field }) => (
-                                    <TextField {...field} type="text" size="small" slotProps={{
-                                        input: { inputProps: { maxLength: 255 } }
-                                    }} />
-                                )}
-                            />
-                            <FormHelperText>{errors.email?.message}</FormHelperText>
-                        </FormControl>
-                    </Grid>
-
-                    <Grid size={6}>
-                        <Button fullWidth size="small" variant="outlined" onClick={() => props.handleBackToLogin()} > Back </Button>
-                    </Grid>
-                    <Grid size={6}>
-                        <Button type="submit" fullWidth size="small" variant="contained" startIcon={<PersonAddIcon />} > Create User</Button>
-                    </Grid>
+                <Grid size={12}>
+                    <Typography textAlign="left" sx={{ fontWeight: "semibold", fontSize: "15px", mb: "2px", mt: "2px", color: "#2D2D2D" }}>
+                        Username{" "}<Box component="span" sx={{ color: "red" }}>*</Box>
+                    </Typography>
+                    <FormControl fullWidth error={!!errors.username} size="small" >
+                        <Controller name="username" defaultValue="" control={control} rules={{ required: "Username is required." }}
+                            render={({ field }) => (
+                                <TextField {...field} size="small" slotProps={{
+                                    input: { inputProps: { maxLength: 50 } }
+                                }} />
+                            )}
+                        />
+                        <FormHelperText>{errors.username?.message}</FormHelperText>
+                    </FormControl>
                 </Grid>
 
-            </form>
+                <Grid size={12}>
+                    <Typography textAlign="left" sx={{ fontWeight: "semibold", fontSize: "15px", mb: "2px", mt: "2px", color: "#2D2D2D" }}>Password{" "}<Box component="span" sx={{ color: "red" }}>*</Box></Typography>
+                    <FormControl fullWidth error={!!errors.password} size="small">
+                        <Controller name="password" defaultValue="" control={control} rules={{
+                            required: "Password is required.",
+                            pattern: {
+                                value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/,
+                                message: "Must contain 8+ characters, uppercase, lowercase, number, and special character.",
+                            },
+                        }}
+                            render={({ field }) => (
+                                <TextField {...field} type="password" size="small" slotProps={{
+                                    input: { inputProps: { maxLength: 100 } }
+                                }} />
+                            )}
+                        />
+                        <FormHelperText>{errors.password?.message}</FormHelperText>
+                    </FormControl>
+                </Grid>
+                <Grid size={12}>
+                    <Typography textAlign="left" sx={{ fontWeight: "semibold", fontSize: "15px", mb: "2px", mt: "2px", color: "#2D2D2D" }}>Role{" "}<Box component="span" sx={{ color: "red" }}>*</Box></Typography>
+                    <FormControl fullWidth error={!!errors.role} size="small">
+                        <Controller name="role" defaultValue="" control={control} rules={{
+                            required: "Role is required.",
+                        }}
+                            render={({ field }) => (
+
+                                <Select {...field} size="small">
+                                    <MenuItem value="ADMIN">ADMIN</MenuItem>
+                                    <MenuItem value="USER">USER</MenuItem>
+                                </Select>
+                            )}
+                        />
+                        <FormHelperText>{errors.role?.message}</FormHelperText>
+                    </FormControl>
+                </Grid>
+                <Grid size={12}>
+                    <Typography textAlign="left" sx={{ fontWeight: "semibold", fontSize: "15px", mb: "2px", mt: "2px", color: "#2D2D2D" }}>Name</Typography>
+                    <FormControl fullWidth size="small">
+                        <Controller name="name" defaultValue="" control={control}
+                            render={({ field }) => (
+                                <TextField {...field} type="text" size="small" slotProps={{
+                                    input: { inputProps: { maxLength: 100 } }
+                                }} />
+                            )}
+                        />
+                    </FormControl>
+                </Grid>
+                <Grid size={12}>
+                    <Typography textAlign="left" sx={{ fontWeight: "semibold", fontSize: "15px", mb: "2px", mt: "2px", color: "#2D2D2D" }}>Email</Typography>
+                    <FormControl fullWidth error={!!errors.email} size="small">
+                        <Controller name="email" defaultValue="" control={control} rules={{
+                            pattern: {
+                                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                                message: "Please add valid email.",
+                            },
+                        }}
+                            render={({ field }) => (
+                                <TextField {...field} type="text" size="small" slotProps={{
+                                    input: { inputProps: { maxLength: 255 } }
+                                }} />
+                            )}
+                        />
+                        <FormHelperText>{errors.email?.message}</FormHelperText>
+                    </FormControl>
+                </Grid>
+
+                <Grid size={6}>
+                    <Button fullWidth size="small" variant="outlined" onClick={() => props.handleBackToLogin()} > Back </Button>
+                </Grid>
+                <Grid size={6}>
+                    <Button type="submit" fullWidth size="small" variant="contained" startIcon={<PersonAddIcon />} > Create User</Button>
+                </Grid>
+            </Grid>
+
+        </form>
     );
 }
 
