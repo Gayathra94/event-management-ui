@@ -5,12 +5,15 @@ import App from './App.tsx'
 import { BrowserRouter } from 'react-router-dom'
 import React from 'react'
 import AlertProvider from './common/AlertProvider.tsx'
+import { UserProvider } from './common/UserContext.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
       <AlertProvider>
-        <App />
+        <UserProvider>
+          <App />
+        </UserProvider>
       </AlertProvider>
     </BrowserRouter>
   </React.StrictMode>

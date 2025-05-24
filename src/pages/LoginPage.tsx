@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Alert, Box, Button, FormControl, FormHelperText, MenuItem, Paper, Select, Stack, TextField, Typography } from "@mui/material";
+import { Box, Button, FormControl, FormHelperText, MenuItem, Paper, Select, Stack, TextField, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -10,6 +10,8 @@ import { createUser, login } from "../services/auth-service";
 import dayjs from "dayjs";
 import { useGlobalAlert } from "../common/AlertProvider";
 import type { AxiosError } from "axios";
+import { useUser } from "../common/UserContext";
+import { getUser } from "../services/user-service";
 
 
 type LoginFormValues = {
@@ -23,12 +25,22 @@ const LoginPage = () => {
     const navigate = useNavigate();
     const { control, handleSubmit, formState: { errors } } = useForm<LoginFormValues>({ defaultValues: { username: "", password: "", } });
     const [enableCreateUser, setEnableCreateUser] = React.useState(false);
+    const { setUser } = useUser();
 
     const handleLogin = async (data: LoginFormValues) => {
         try {
             const response = await login(data);
             if (response.data) {
-                navigate("dashboard");
+                getUser().then((response) => {
+                    const userData = response.data;
+                    setUser(userData);
+                    sessionStorage.setItem('user', JSON.stringify(userData));
+                    navigate("/dashboard");
+                }).catch((error) => {
+                    console.error(error);
+                    showAlert('Failed to load user data. Please try again later.', "error");
+                });
+
             }
         } catch (err) {
             const error = err as AxiosError;
@@ -36,19 +48,14 @@ const LoginPage = () => {
         }
     };
 
+
+
     const handleUserCreation = () => {
         setEnableCreateUser(true)
     }
 
     return (
-        <Box
-            sx={{
-                height: "100vh",
-                width: "100vw",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-            }}
+        <Box sx={{  height: "100vh", width: "100vw",  display: "flex",  justifyContent: "center",  alignItems: "center", }}
         >
 
             <Paper elevation={3} sx={{ p: 4, width: "90%", maxWidth: 400, py: "60px", px: "30px", borderRadius: "20px", opacity: 0.96, my: { md: 0, xs: 5 }, mx: { md: 0, xs: 5 }, textAlign: "center" }}>

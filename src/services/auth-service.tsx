@@ -8,8 +8,5 @@ export const createUser = async (user: User) => {
 };
 
 export const login = async ({ username, password }: { username: string; password: string }) => {
-  return await axios.post(`${CONTROLLER}/login`, {
-    username,
-    password,
-  });
+  return await axios.post(`${CONTROLLER}/login`, { username, password}, { withCredentials: true});
 }

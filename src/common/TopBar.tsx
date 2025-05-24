@@ -23,8 +23,6 @@ function TopBar() {
         >
           Event Manager
         </Typography>
-        <Button color="inherit" onClick={() => navigate("/dashboard")}>Dashboard</Button>
-        <Button color="inherit" onClick={() => navigate("/eventDetail")}>Event Details</Button>
         <Button color="inherit" onClick={() => navigate("/userProfile")}>User Profile</Button>
       </Toolbar>
     </AppBar>
