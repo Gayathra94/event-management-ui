@@ -11,7 +11,7 @@ import dayjs from "dayjs";
 import { useGlobalAlert } from "../common/AlertProvider";
 import type { AxiosError } from "axios";
 import { useUser } from "../common/UserContext";
-import { getUser } from "../services/user-service";
+import { getUserDetails } from "../services/user-service";
 
 
 type LoginFormValues = {
@@ -31,7 +31,7 @@ const LoginPage = () => {
         try {
             const response = await login(data);
             if (response.data) {
-                getUser().then((response) => {
+                getUserDetails().then((response) => {
                     const userData = response.data;
                     setUser(userData);
                     sessionStorage.setItem('user', JSON.stringify(userData));
@@ -55,8 +55,7 @@ const LoginPage = () => {
     }
 
     return (
-        <Box sx={{  height: "100vh", width: "100vw",  display: "flex",  justifyContent: "center",  alignItems: "center", }}
-        >
+        <Box sx={{  height: "100vh", width: "100vw",  display: "flex",  justifyContent: "center",  alignItems: "center", }} >
 
             <Paper elevation={3} sx={{ p: 4, width: "90%", maxWidth: 400, py: "60px", px: "30px", borderRadius: "20px", opacity: 0.96, my: { md: 0, xs: 5 }, mx: { md: 0, xs: 5 }, textAlign: "center" }}>
                 <Stack direction="column" alignItems="center" spacing={2} sx={{ marginBottom: '20px' }}>
@@ -151,7 +150,7 @@ function CreateUser(props: { enableCreateUser: boolean, setEnableCreateUser: Rea
             props.handleBackToLogin();
         } catch (err: unknown) {
             const error = err as AxiosError;
-            showAlert(`${error.response?.data}`, "error")
+            showAlert(`${error.response?.data || 'Something went wrong.'}`, "error")
         }
     };
 
@@ -214,20 +213,24 @@ function CreateUser(props: { enableCreateUser: boolean, setEnableCreateUser: Rea
                 </Grid>
                 <Grid size={12}>
                     <Typography textAlign="left" sx={{ fontWeight: "semibold", fontSize: "15px", mb: "2px", mt: "2px", color: "#2D2D2D" }}>Name</Typography>
-                    <FormControl fullWidth size="small">
-                        <Controller name="name" defaultValue="" control={control}
+                    <FormControl fullWidth error={!!errors.name} size="small">
+                        <Controller name="name" defaultValue="" control={control} rules={{
+                            required: "Name is required.",
+                        }}
                             render={({ field }) => (
                                 <TextField {...field} type="text" size="small" slotProps={{
                                     input: { inputProps: { maxLength: 100 } }
                                 }} />
                             )}
                         />
+                          <FormHelperText>{errors.name?.message}</FormHelperText>
                     </FormControl>
                 </Grid>
                 <Grid size={12}>
                     <Typography textAlign="left" sx={{ fontWeight: "semibold", fontSize: "15px", mb: "2px", mt: "2px", color: "#2D2D2D" }}>Email</Typography>
                     <FormControl fullWidth error={!!errors.email} size="small">
                         <Controller name="email" defaultValue="" control={control} rules={{
+                            required: "Email is required.",
                             pattern: {
                                 value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
                                 message: "Please add valid email.",

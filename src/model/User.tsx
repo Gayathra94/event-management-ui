@@ -2,7 +2,7 @@ import { Dayjs } from "dayjs";
 
 export interface User {
 
-    id: string | null;
+    id?: string;
     username: string;
     password: string;
     name: string| null;

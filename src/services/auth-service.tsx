@@ -10,3 +10,13 @@ export const createUser = async (user: User) => {
 export const login = async ({ username, password }: { username: string; password: string }) => {
   return await axios.post(`${CONTROLLER}/login`, { username, password}, { withCredentials: true});
 }
+
+export const logout = async () => {
+  try {
+    const response = await axios.get(`${CONTROLLER}/logout`, { withCredentials: true,});
+    return response;
+  } catch (error) {
+    console.error('Logout failed:', error);
+    throw error;
+  }
+};

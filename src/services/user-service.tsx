@@ -1,12 +1,8 @@
 import axios from "axios"
 
-const CONTROLLER = "http://localhost:8080/ems/auth";
+const CONTROLLER = "http://localhost:8080/ems/user";
 
-export const getUser = async () => {
-    return await axios.get(`${CONTROLLER}/getUser`, {withCredentials: true });
+export const getUserDetails = async () => {
+    return await axios.get(`${CONTROLLER}/getUserDetails`, {withCredentials: true });
+};
 
-};
-export const logout = async () => {
-    const response = await axios.get(`${CONTROLLER}/logout`);
-    return response.data;
-};
