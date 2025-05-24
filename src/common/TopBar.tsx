@@ -6,11 +6,28 @@ import { Link, useNavigate } from 'react-router-dom';
 import { logout } from '../services/auth-service';
 import ManageEventDialog from '../components/ManageEventDialog';
 import { useState } from 'react';
+import type { EventRequest } from '../model/EventRequest';
+import dayjs from 'dayjs';
+import { Avatar, Box, IconButton, Tooltip } from '@mui/material';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 function TopBar() {
+
+  const defaultValues: EventRequest = {
+    id: "",
+    title: "",
+    description: "",
+    hostId: "",
+    startTime: null,
+    endTime: null,
+    location: "",
+    visibility: "",
+    createdAt: dayjs(),
+  };
+
+
   const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState(false);
-
   const logoutHandler = async () => {
     try {
       const response = await logout();
@@ -27,22 +44,26 @@ function TopBar() {
     <>
       <AppBar position="static">
         <Toolbar>
-          <Typography  variant="h6"  component={Link}  to="/dashboard"
-            sx={{
-              flexGrow: 1,
-              textDecoration: 'none',
-              color: 'inherit',
-              cursor: 'pointer',
-              '&:hover': { color: 'inherit' },
-            }} >  Event Manager </Typography>
 
+          <Avatar alt="event logo" aria-describedby={"id"} component={Link} to="/dashboard"
+            sx={{
+              color: 'white', display: { xs: 'none', md: 'flex' }, marginRight: '5px', cursor: 'pointer',
+              '&:hover': { color: 'inherit' }
+            }} />
+
+          <Box sx={{ flexGrow: 1 }} />
           <Button color="inherit" onClick={() => setDialogOpen(true)}>Create Event</Button>
           <Button color="inherit" onClick={() => navigate("/user-profile")}>Profile</Button>
-          <Button color="inherit" onClick={logoutHandler}>Logout</Button>
+
+          <Tooltip title="Attendance">
+            <IconButton onClick={logoutHandler} color='default'>
+              <LogoutIcon />
+            </IconButton>
+          </Tooltip>
         </Toolbar>
       </AppBar>
 
-      <ManageEventDialog  mode="C" open={dialogOpen}  onClose={() => setDialogOpen(false)}
+      <ManageEventDialog mode="C" eventRequest={defaultValues} open={dialogOpen} onClose={() => setDialogOpen(false)}
       />
     </>
   );

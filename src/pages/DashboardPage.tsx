@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, List, ListItem, ListItemText, Divider, Pagination, Select, MenuItem, FormControl, InputLabel, Stack, Avatar, IconButton, Tooltip, } from '@mui/material';
+import { Box, Typography, List, ListItem, ListItemText, Divider, Pagination, Select, MenuItem, FormControl, InputLabel, Stack, Avatar, IconButton, Tooltip, Button, } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import type { EventRequest } from '../model/EventRequest';
 import { getListUpcomingEvents } from '../services/event-service';
@@ -8,15 +8,38 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditSquareIcon from '@mui/icons-material/EditSquare';
 import ManageEventDialog from '../components/ManageEventDialog';
 import AttendButtonGroup from '../components/AttendButtonGroup';
+import EventFilterDialog from '../components/EventFilterDialog';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+
+
 const ITEMS_PER_PAGE_OPTIONS = [5, 10, 20, 0];
 
 export default function DashboardPage() {
+
+    const defaultValues: EventRequest = {
+        id: "",
+        title: "",
+        description: "",
+        hostId: "",
+        startTime: null,
+        endTime: null,
+        location: "",
+        visibility: "",
+        createdAt: dayjs(),
+    };
 
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [itemsPerPage, setItemsPerPage] = useState<number>(5);
     const [paginatedEvents, setPaginatedEvents] = useState<EventRequest[]>([]);
     const [eventList, setEventList] = useState<EventRequest[]>([])
     const [dialogOpen, setDialogOpen] = useState(false);
+    const [selectedEvent, setSelectedEvent] = useState<EventRequest>(defaultValues);
+    const [filterDialogOpen, setFilterDialogOpen] = useState(false);
+    const [filters, setFilters] = React.useState({
+        hostName: '',
+        startTime: null,
+        endTime: null,
+    });
     useEffect(() => {
         const fetchUpcomingEvents = async () => {
             const response = await getListUpcomingEvents();
@@ -51,7 +74,9 @@ export default function DashboardPage() {
         setCurrentPage(1);
     };
 
-    const handleEdit = (id: string) => {
+    const handleEdit = (event: EventRequest) => {
+
+        setSelectedEvent(event)
         setDialogOpen(true)
     }
 
@@ -59,10 +84,26 @@ export default function DashboardPage() {
 
     }
 
+    const closeSearchDialog = () => {
+        setFilterDialogOpen(false);
+    };
+
+    const applyFilters = (newFilters: any) => {
+        setFilters(newFilters);
+        //fetchInvoices(newFilters);
+    };
+    const resetFilters = (newFilters: any) => {
+        setFilters(newFilters);
+        //fetchInvoices();
+    };
     return (
         <>
             <Box maxWidth="md" mx="auto" p={3}>
-                <Typography variant="h4" component="h1" sx={{ padding: 'none', margin: 'none' }} > Event List </Typography>
+                <Box>
+                    <Typography variant="h4" component="h1" sx={{ padding: 'none', margin: 'none' }} > Event List </Typography>
+                    <Button onClick={() => { setFilterDialogOpen(true) }}>Apply Filters</Button>
+                </Box>
+
 
                 <List>
                     {paginatedEvents.map((event, idx) => (
@@ -73,14 +114,16 @@ export default function DashboardPage() {
                                         <>
                                             <Box mt={1} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                 <Box display='flex'>
-                                                    <Avatar alt="event logo" src="https://i.imgur.com/1bX5QH6.jpg" aria-describedby={"id"}
-                                                        sx={{ color: 'white', display: { xs: 'none', md: 'flex' }, marginRight: '5px' }} />
+                                                    <Avatar aria-describedby={"id"} variant="rounded"
+                                                        sx={{ color: 'white', display: { xs: 'none', md: 'flex' }, marginRight: '5px' }} >
+                                                        <AssignmentIcon />
+                                                    </Avatar>
                                                     <Typography variant="h6" color='primary' component="span"> {event.title}  </Typography>
                                                 </Box>
 
                                                 <Stack direction="row" spacing={1} mt={1}>
                                                     <Tooltip title="Edit Event" arrow>
-                                                        <IconButton color='warning' size='small' aria-label="delete" onClick={() => handleEdit(event.id)}><EditSquareIcon /></IconButton>
+                                                        <IconButton color='warning' size='small' aria-label="delete" onClick={() => handleEdit(event)}><EditSquareIcon /></IconButton>
                                                     </Tooltip>
                                                     <Tooltip title="Delete Event" arrow>
                                                         <IconButton color='error' size='small' aria-label="delete" onClick={() => handleRemove(event.id)}><DeleteIcon /></IconButton>
@@ -160,7 +203,8 @@ export default function DashboardPage() {
                     </Box>
                 )}
             </Box>
-            <ManageEventDialog mode='C' open={dialogOpen} onClose={() => setDialogOpen(false)}></ManageEventDialog>
+            <EventFilterDialog open={filterDialogOpen} onClose={closeSearchDialog} onApplyFilters={applyFilters} onRestFilters={resetFilters}></EventFilterDialog>
+            <ManageEventDialog mode='E' eventRequest={selectedEvent} open={dialogOpen} onClose={() => setDialogOpen(false)}></ManageEventDialog>
         </>
 
     );

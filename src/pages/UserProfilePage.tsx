@@ -6,7 +6,6 @@ import { getListUpcomingEvents } from '../services/event-service';
 import dayjs from 'dayjs';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditSquareIcon from '@mui/icons-material/EditSquare';
-import ManageEventDialog from '../components/ManageEventDialog';
 const ITEMS_PER_PAGE_OPTIONS = [5, 10, 20, 0];
 
 export default function UserProfilePage() {
@@ -15,7 +14,6 @@ export default function UserProfilePage() {
     const [itemsPerPage, setItemsPerPage] = useState<number>(5);
     const [paginatedEvents, setPaginatedEvents] = useState<EventRequest[]>([]);
     const [eventList, setEventList] = useState<EventRequest[]>([])
-    const [dialogOpen, setDialogOpen] = useState(false);
     
     useEffect(() => {
         const fetchUpcomingEvents = async () => {
@@ -51,14 +49,6 @@ export default function UserProfilePage() {
         setCurrentPage(1);
     };
 
-    const handleEdit = (id: string) => {
-        setDialogOpen(true)
-    }
-
-    const handleRemove = (id: string) => {
-
-    }
-
     return (
         <>
             <Box maxWidth="md" mx="auto" p={3}>
@@ -77,12 +67,6 @@ export default function UserProfilePage() {
                                                         sx={{ color: 'white', display: { xs: 'none', md: 'flex' }, marginRight: '5px' }} />
                                                     <Typography variant="h6" color='primary' component="span"> {event.title}  </Typography>
                                                 </Box>
-
-                                                <Stack direction="row" spacing={1} mt={1}>
-                                                    <IconButton color='warning' aria-label="delete" onClick={() => handleEdit(event.id)}><EditSquareIcon /></IconButton>
-                                                    <IconButton color='error' aria-label="delete" onClick={() => handleRemove(event.id)}><DeleteIcon /></IconButton>
-                                                </Stack>
-
 
                                             </Box>
                                             <Box mt={1} sx={{ alignItems: 'center' }}>
@@ -153,7 +137,7 @@ export default function UserProfilePage() {
                     </Box>
                 )}
             </Box>
-            <ManageEventDialog mode='C' open={dialogOpen} onClose={() => setDialogOpen(false)}></ManageEventDialog>
+            
         </>
 
     );

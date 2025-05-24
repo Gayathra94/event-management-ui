@@ -12,8 +12,9 @@ import { createEvent } from "../services/event-service";
 import { useUser } from "../common/UserContext";
 import { useGlobalAlert } from "../common/AlertProvider";
 import type { AxiosError } from "axios";
-
-export default function ManageEventDialog(props: { mode: string; open: boolean; onClose: () => void }) {
+import { useEffect, useMemo } from "react";
+import SaveAsIcon from '@mui/icons-material/SaveAs';
+export default function ManageEventDialog(props: { mode: string; eventRequest: EventRequest; open: boolean; onClose: () => void }) {
 
 
     const { user } = useUser();
@@ -23,7 +24,21 @@ export default function ManageEventDialog(props: { mode: string; open: boolean; 
         { label: 'PRIVATE', value: 'PRIVATE' }
     ];
 
-    const { control, handleSubmit, formState: { errors }, setError } = useForm<EventRequest>({ defaultValues: { id: "", title: "", description: "", hostId: "", startTime: null, endTime: null, location: "", visibility: "", createdAt: dayjs } });
+    const eventDefaultValues = useMemo(() => ({
+        ...props.eventRequest,
+        startTime: props.eventRequest.startTime ? dayjs(props.eventRequest.startTime) : null,
+        endTime: props.eventRequest.endTime ? dayjs(props.eventRequest.endTime) : null,
+        createdAt: dayjs(props.eventRequest.createdAt),
+        updatedAt: props.eventRequest.updatedAt ? dayjs(props.eventRequest.updatedAt) : undefined
+    }), [props.eventRequest]);
+
+
+    const { control, handleSubmit, formState: { errors }, setError, reset } = useForm<EventRequest>({ defaultValues: eventDefaultValues });
+
+    useEffect(() => {
+        reset(eventDefaultValues);
+    }, [eventDefaultValues, reset]);
+
 
     const handleEventCreate = async (event: EventRequest) => {
         if (!user?.id) {
@@ -49,7 +64,6 @@ export default function ManageEventDialog(props: { mode: string; open: boolean; 
             }
             if (error.status === 400) {
                 const eventRequestErrors = error.response?.data;
-                // Assuming error format: { title: "Title must not be empty", description: "..." }
                 if (eventRequestErrors && typeof eventRequestErrors === 'object') {
                     Object.entries(eventRequestErrors).forEach(([field, message]) => {
                         setError(field as keyof EventRequest, {
@@ -61,8 +75,9 @@ export default function ManageEventDialog(props: { mode: string; open: boolean; 
             }
 
         }
-
     };
+
+    const handleEventUpdate = (event: EventRequest) => {}
 
     return (
 
@@ -77,9 +92,9 @@ export default function ManageEventDialog(props: { mode: string; open: boolean; 
                     <Grid size={{ xs: 12, md: 12, lg: 12 }}>
 
                         <Container sx={{ mt: 4 }}>
-                            
+
                             <Box sx={{ display: "flex", justifyContent: "center" }} >
-                                <form onSubmit={handleSubmit(handleEventCreate)}>
+                                <form onSubmit={handleSubmit(props.mode === "C" ? handleEventCreate : handleEventUpdate)} noValidate>
                                     <Grid container spacing={2}>
                                         <Grid size={{ xs: 12, md: 6, lg: 6 }}>
 
@@ -156,13 +171,15 @@ export default function ManageEventDialog(props: { mode: string; open: boolean; 
                                             </FormControl>
                                         </Grid>
                                         <Grid size={12} >
-                                          <Box justifyContent="right" display="flex">
-                                               <Button variant="outlined" size="small" sx={{marginRight:'5px'}} onClick={props.onClose}>Close</Button>
-                                              {props.mode == 'C' && (
-                                                <Button type="submit" size="small" variant="contained" startIcon={<SaveIcon />} > Save Event</Button>
-                                            )}
-                                            
-                                          </Box>
+                                            <Box justifyContent="right" display="flex">
+                                                <Button variant="outlined" size="small" sx={{ marginRight: '5px' }} onClick={props.onClose}>Close</Button>
+                                                {props.mode == 'C' && (
+                                                    <Button type="submit" size="small" variant="contained" startIcon={<SaveIcon />} > Save Event</Button>
+                                                )}
+                                                {props.mode == 'E' && (
+                                                    <Button type="submit" size="small" variant="contained" startIcon={<SaveAsIcon />} > Update Event</Button>
+                                                )}
+                                            </Box>
                                         </Grid>
                                     </Grid>
 
