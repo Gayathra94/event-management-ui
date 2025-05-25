@@ -1,19 +1,18 @@
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import { Link, useNavigate } from 'react-router-dom';
 import { logout } from '../services/auth-service';
 import ManageEventDialog from '../components/ManageEventDialog';
 import { useState } from 'react';
-import type { EventRequest } from '../model/EventRequest';
+import type { EventDTO } from '../model/EventDTO';
 import dayjs from 'dayjs';
 import { Avatar, Box, IconButton, Tooltip } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 
 function TopBar() {
 
-  const defaultValues: EventRequest = {
+  const defaultValues: EventDTO = {
     id: "",
     title: "",
     description: "",
@@ -63,7 +62,7 @@ function TopBar() {
         </Toolbar>
       </AppBar>
 
-      <ManageEventDialog mode="C" eventRequest={defaultValues} open={dialogOpen} onClose={() => setDialogOpen(false)}
+      <ManageEventDialog mode="C" eventDTO={defaultValues} open={dialogOpen} onClose={() => setDialogOpen(false)}
       />
     </>
   );

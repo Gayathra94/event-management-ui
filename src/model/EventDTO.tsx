@@ -1,6 +1,6 @@
 import type { Dayjs } from "dayjs";
 
-export interface EventRequest {
+export interface EventDTO {
     id: string;
     title: string;
     description: string;

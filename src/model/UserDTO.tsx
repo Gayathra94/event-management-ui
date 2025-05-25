@@ -1,8 +1,8 @@
 import { Dayjs } from "dayjs";
 
-export interface User {
+export interface UserDTO {
 
-    id?: string;
+    id: string;
     username: string;
     password: string;
     name: string| null;

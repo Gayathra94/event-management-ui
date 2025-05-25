@@ -1,9 +1,9 @@
 import axios from 'axios';
-import type { User } from '../model/User';
+import type { UserDTO } from '../model/UserDTO';
 
 const CONTROLLER = "http://localhost:8080/ems/auth";
 
-export const createUser = async (user: User) => {
+export const createUser = async (user: UserDTO) => {
   return await axios.post(`${CONTROLLER}/createUser`, user);
 };
 

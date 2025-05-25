@@ -8,18 +8,43 @@ import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
 import ListIcon from '@mui/icons-material/List';
 import { IconButton, Tooltip } from '@mui/material';
+import { useUser } from '../common/UserContext';
+import { useGlobalAlert } from '../common/AlertProvider';
+import { attendEvent, deleteEvent } from '../services/event-service';
+import type { AxiosError } from 'axios';
+import type { AttendanceRequest } from '../model/AttendanceRequest';
 
 const options = ['GOING', 'MAYBE', 'DECLINED'];
 
-export default function AttendButtonGroup() {
+export default function AttendButtonGroup(props: { eventId: string }) {
+
+
+  const { user } = useUser();
+  const { showAlert } = useGlobalAlert();
   const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef<HTMLDivElement>(null);
   const [selectedIndex, setSelectedIndex] = React.useState(1);
 
-  const handleMenuItemClick = (event: React.MouseEvent<HTMLLIElement, MouseEvent>, index: number) => {
+  const handleMenuItemClick = async (event: React.MouseEvent<HTMLLIElement, MouseEvent>, index: number) => {
     setSelectedIndex(index);
     setOpen(false);
-    alert(index)
+    try {
+
+      const attendanceRequest: AttendanceRequest = {
+        userId: user?.id || "",
+        eventId: props.eventId || "",
+        status: options[index]
+      };
+
+      const response = await attendEvent(attendanceRequest);
+      if (response.status == 200) {
+        showAlert(`Attendance updated successfully!` , "success")
+      }
+    } catch (err) {
+      const error = err as AxiosError;
+      const errorMessage = error.response?.data || 'Something went wrong.';
+      showAlert(`${errorMessage}`, "error")
+    }
   };
 
   const handleToggle = () => {

@@ -7,14 +7,14 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import SaveIcon from '@mui/icons-material/Save';
-import type { EventRequest } from "../model/EventRequest";
-import { createEvent } from "../services/event-service";
+import type { EventDTO } from "../model/EventDTO";
+import { createEvent, updateEvent } from "../services/event-service";
 import { useUser } from "../common/UserContext";
 import { useGlobalAlert } from "../common/AlertProvider";
 import type { AxiosError } from "axios";
 import { useEffect, useMemo } from "react";
 import SaveAsIcon from '@mui/icons-material/SaveAs';
-export default function ManageEventDialog(props: { mode: string; eventRequest: EventRequest; open: boolean; onClose: () => void }) {
+export default function ManageEventDialog(props: { mode: string; eventDTO: EventDTO; open: boolean; onClose: () => void }) {
 
 
     const { user } = useUser();
@@ -25,29 +25,29 @@ export default function ManageEventDialog(props: { mode: string; eventRequest: E
     ];
 
     const eventDefaultValues = useMemo(() => ({
-        ...props.eventRequest,
-        startTime: props.eventRequest.startTime ? dayjs(props.eventRequest.startTime) : null,
-        endTime: props.eventRequest.endTime ? dayjs(props.eventRequest.endTime) : null,
-        createdAt: dayjs(props.eventRequest.createdAt),
-        updatedAt: props.eventRequest.updatedAt ? dayjs(props.eventRequest.updatedAt) : undefined
-    }), [props.eventRequest]);
+        ...props.eventDTO,
+        startTime: props.eventDTO.startTime ? dayjs(props.eventDTO.startTime) : null,
+        endTime: props.eventDTO.endTime ? dayjs(props.eventDTO.endTime) : null,
+        createdAt: dayjs(props.eventDTO.createdAt),
+        updatedAt: props.eventDTO.updatedAt ? dayjs(props.eventDTO.updatedAt) : undefined
+    }), [props.eventDTO]);
 
 
-    const { control, handleSubmit, formState: { errors }, setError, reset } = useForm<EventRequest>({ defaultValues: eventDefaultValues });
+    const { control, handleSubmit, formState: { errors }, setError, reset } = useForm<EventDTO>({ defaultValues: eventDefaultValues });
 
     useEffect(() => {
         reset(eventDefaultValues);
     }, [eventDefaultValues, reset]);
 
 
-    const handleEventCreate = async (event: EventRequest) => {
-        if (!user?.id) {
+    const handleEventCreate = async (eventDTO: EventDTO) => {
+        if (user == null) {
             showAlert(`Unable to create a event.`, "error")
             return;
         }
-        event.hostId = user.id;
+        eventDTO.hostId = user.id;
         try {
-            const response = await createEvent(event);
+            const response = await createEvent(eventDTO);
             debugger
             if (response.status === 200) {
                 showAlert(`Event has been created successfully.`, "success")
@@ -66,7 +66,7 @@ export default function ManageEventDialog(props: { mode: string; eventRequest: E
                 const eventRequestErrors = error.response?.data;
                 if (eventRequestErrors && typeof eventRequestErrors === 'object') {
                     Object.entries(eventRequestErrors).forEach(([field, message]) => {
-                        setError(field as keyof EventRequest, {
+                        setError(field as keyof EventDTO, {
                             type: 'manual',
                             message: message as string
                         });
@@ -77,7 +77,40 @@ export default function ManageEventDialog(props: { mode: string; eventRequest: E
         }
     };
 
-    const handleEventUpdate = (event: EventRequest) => {}
+    const handleEventUpdate = async (eventDTO: EventDTO) => {
+        if (user == null) {
+            showAlert(`Unable to update a event.`, "error")
+            return;
+        }
+        eventDTO.hostId = user.id;
+        try {
+            const response = await updateEvent(eventDTO);
+            if (response.status === 200) {
+                showAlert(`Event has been updated successfully.`, "success")
+            }
+
+        } catch (err) {
+            const error = err as AxiosError<{ code: string; message: string }>;
+            debugger;
+            if (error.status == 500) {
+                if (error.response?.data?.code === '1003') {
+                    const errorMessage = error.response?.data?.message || 'Something went wrong.';
+                    showAlert(errorMessage, "error")
+                }
+            }
+            if (error.status === 400) {
+                const eventRequestErrors = error.response?.data;
+                if (eventRequestErrors && typeof eventRequestErrors === 'object') {
+                    Object.entries(eventRequestErrors).forEach(([field, message]) => {
+                        setError(field as keyof EventDTO, {
+                            type: 'manual',
+                            message: message as string
+                        });
+                    });
+                }
+            }
+        }
+    }
 
     return (
 

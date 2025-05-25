@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, List, ListItem, ListItemText, Divider, Pagination, Select, MenuItem, FormControl, InputLabel, Stack, Avatar, IconButton, Tooltip, Button, } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select';
-import type { EventRequest } from '../model/EventRequest';
-import { getListUpcomingEvents } from '../services/event-service';
+import type { EventDTO } from '../model/EventDTO';
+import { deleteEvent, getListUpcomingEvents } from '../services/event-service';
 import dayjs from 'dayjs';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditSquareIcon from '@mui/icons-material/EditSquare';
@@ -10,36 +10,29 @@ import ManageEventDialog from '../components/ManageEventDialog';
 import AttendButtonGroup from '../components/AttendButtonGroup';
 import EventFilterDialog from '../components/EventFilterDialog';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import { useGlobalAlert } from '../common/AlertProvider';
+import type { AxiosError } from 'axios';
 
 
 const ITEMS_PER_PAGE_OPTIONS = [5, 10, 20, 0];
 
 export default function DashboardPage() {
 
-    const defaultValues: EventRequest = {
-        id: "",
-        title: "",
-        description: "",
-        hostId: "",
-        startTime: null,
-        endTime: null,
-        location: "",
-        visibility: "",
-        createdAt: dayjs(),
-    };
-
+    const { showAlert } = useGlobalAlert();
+    const defaultValues: EventDTO = { id: "", title: "", description: "", hostId: "", startTime: null, endTime: null, location: "", visibility: "", createdAt: dayjs(), };
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [itemsPerPage, setItemsPerPage] = useState<number>(5);
-    const [paginatedEvents, setPaginatedEvents] = useState<EventRequest[]>([]);
-    const [eventList, setEventList] = useState<EventRequest[]>([])
+    const [paginatedEvents, setPaginatedEvents] = useState<EventDTO[]>([]);
+    const [eventList, setEventList] = useState<EventDTO[]>([])
     const [dialogOpen, setDialogOpen] = useState(false);
-    const [selectedEvent, setSelectedEvent] = useState<EventRequest>(defaultValues);
+    const [selectedEvent, setSelectedEvent] = useState<EventDTO>(defaultValues);
     const [filterDialogOpen, setFilterDialogOpen] = useState(false);
     const [filters, setFilters] = React.useState({
         hostName: '',
         startTime: null,
         endTime: null,
     });
+
     useEffect(() => {
         const fetchUpcomingEvents = async () => {
             const response = await getListUpcomingEvents();
@@ -61,8 +54,7 @@ export default function DashboardPage() {
         }
     }, [currentPage, itemsPerPage, eventList]);
 
-    const totalPages =
-        itemsPerPage === 0 ? 1 : Math.ceil(eventList.length / itemsPerPage);
+    const totalPages = itemsPerPage === 0 ? 1 : Math.ceil(eventList.length / itemsPerPage);
 
     const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
         setCurrentPage(page);
@@ -74,14 +66,22 @@ export default function DashboardPage() {
         setCurrentPage(1);
     };
 
-    const handleEdit = (event: EventRequest) => {
-
+    const handleEdit = (event: EventDTO) => {
         setSelectedEvent(event)
         setDialogOpen(true)
     }
 
-    const handleRemove = (id: string) => {
-
+    const handleRemove = async (id: string) => {
+        try {
+            const response = await deleteEvent(id);
+            if (response.status == 200) {
+                showAlert(`Event has been deleted successfully.`, "success")
+            }
+        } catch (err) {
+            const error = err as AxiosError;
+            const errorMessage = error.response?.data || 'Something went wrong.';
+            showAlert(`${errorMessage}`, "error")
+        }
     }
 
     const closeSearchDialog = () => {
@@ -130,7 +130,7 @@ export default function DashboardPage() {
                                                     </Tooltip>
 
 
-                                                    <AttendButtonGroup></AttendButtonGroup>
+                                                    <AttendButtonGroup eventId={event.id}></AttendButtonGroup>
                                                 </Stack>
 
 
@@ -203,8 +203,9 @@ export default function DashboardPage() {
                     </Box>
                 )}
             </Box>
+
             <EventFilterDialog open={filterDialogOpen} onClose={closeSearchDialog} onApplyFilters={applyFilters} onRestFilters={resetFilters}></EventFilterDialog>
-            <ManageEventDialog mode='E' eventRequest={selectedEvent} open={dialogOpen} onClose={() => setDialogOpen(false)}></ManageEventDialog>
+            <ManageEventDialog mode='E' eventDTO={selectedEvent} open={dialogOpen} onClose={() => setDialogOpen(false)}></ManageEventDialog>
         </>
 
     );

@@ -1,23 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, List, ListItem, ListItemText, Divider, Pagination, Select, MenuItem, FormControl, InputLabel, Stack, Avatar, IconButton, } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select';
-import type { EventRequest } from '../model/EventRequest';
-import { getListUpcomingEvents } from '../services/event-service';
+import type { EventDTO } from '../model/EventDTO';
+import { getListEventsUserHostingOrAttend, getListUpcomingEvents } from '../services/event-service';
 import dayjs from 'dayjs';
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditSquareIcon from '@mui/icons-material/EditSquare';
+import { useUser } from '../common/UserContext';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+
 const ITEMS_PER_PAGE_OPTIONS = [5, 10, 20, 0];
 
 export default function UserProfilePage() {
-
+    const { user } = useUser();
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [itemsPerPage, setItemsPerPage] = useState<number>(5);
-    const [paginatedEvents, setPaginatedEvents] = useState<EventRequest[]>([]);
-    const [eventList, setEventList] = useState<EventRequest[]>([])
+    const [paginatedEvents, setPaginatedEvents] = useState<EventDTO[]>([]);
+    const [eventList, setEventList] = useState<EventDTO[]>([])
     
     useEffect(() => {
         const fetchUpcomingEvents = async () => {
-            const response = await getListUpcomingEvents();
+
+            if(user?.id == null){
+                return
+            }
+            const response = await getListEventsUserHostingOrAttend(user?.id);
             if (response.status == 200) {
                 setEventList(response.data);
             }
@@ -63,8 +68,10 @@ export default function UserProfilePage() {
                                         <>
                                             <Box mt={1} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                 <Box display='flex'>
-                                                    <Avatar alt="event logo" src="https://i.imgur.com/1bX5QH6.jpg" aria-describedby={"id"}
-                                                        sx={{ color: 'white', display: { xs: 'none', md: 'flex' }, marginRight: '5px' }} />
+                                                    <Avatar aria-describedby={"id"} variant="rounded"
+                                                        sx={{ color: 'white', display: { xs: 'none', md: 'flex' }, marginRight: '5px' }} >
+                                                        <AssignmentIcon />
+                                                    </Avatar>
                                                     <Typography variant="h6" color='primary' component="span"> {event.title}  </Typography>
                                                 </Box>
 

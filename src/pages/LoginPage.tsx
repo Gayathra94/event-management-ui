@@ -5,7 +5,7 @@ import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
 import LoginIcon from "@mui/icons-material/Login";
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import type { User } from "../model/User";
+import type { UserDTO } from "../model/UserDTO";
 import { createUser, login } from "../services/auth-service";
 import dayjs from "dayjs";
 import { useGlobalAlert } from "../common/AlertProvider";
@@ -33,6 +33,8 @@ const LoginPage = () => {
             if (response.data) {
                 getUserDetails().then((response) => {
                     const userData = response.data;
+                    console.log('userData', userData);
+                    
                     setUser(userData);
                     sessionStorage.setItem('user', JSON.stringify(userData));
                     navigate("/dashboard");
@@ -137,13 +139,13 @@ const LoginPage = () => {
 function CreateUser(props: { enableCreateUser: boolean, setEnableCreateUser: React.Dispatch<React.SetStateAction<boolean>>; handleBackToLogin: () => void; }) {
 
     const { showAlert } = useGlobalAlert();
-    const { control, handleSubmit, formState: { errors } } = useForm<User>({
+    const { control, handleSubmit, formState: { errors } } = useForm<UserDTO>({
         defaultValues: { id: "", username: "", password: "", name: "", email: "", role: "", createdAt: dayjs() }
     });
 
-    const handleCreateUser = async (user: User) => {
+    const handleCreateUser = async (userDTO: UserDTO) => {
         try {
-            const response = await createUser(user);
+            const response = await createUser(userDTO);
             if (response.status === 200) {
                 showAlert(`User has been created successfully.`, "success")
             }
