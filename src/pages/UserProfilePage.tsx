@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, List, ListItem, ListItemText, Divider, Pagination, Select, MenuItem, FormControl, InputLabel, Stack, Avatar, IconButton, } from '@mui/material';
+import { Box, Typography, List, ListItem, ListItemText, Divider, Pagination, Select, MenuItem, FormControl, InputLabel, Stack, Avatar, IconButton, Grid, Tooltip, } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import type { EventDTO } from '../model/EventDTO';
 import { getListEventsUserHostingOrAttend, getListUpcomingEvents } from '../services/event-service';
@@ -15,11 +15,11 @@ export default function UserProfilePage() {
     const [itemsPerPage, setItemsPerPage] = useState<number>(5);
     const [paginatedEvents, setPaginatedEvents] = useState<EventDTO[]>([]);
     const [eventList, setEventList] = useState<EventDTO[]>([])
-    
+
     useEffect(() => {
         const fetchUpcomingEvents = async () => {
 
-            if(user?.id == null){
+            if (user?.id == null) {
                 return
             }
             const response = await getListEventsUserHostingOrAttend(user?.id);
@@ -56,95 +56,118 @@ export default function UserProfilePage() {
 
     return (
         <>
-            <Box maxWidth="md" mx="auto" p={3}>
-                <Typography variant="h4" component="h1" sx={{ padding: 'none', margin: 'none' }} > Event List </Typography>
+            <Box maxWidth="lg" mx="auto" p={1} mt={7} sx={{ borderRadius: '10px', bgcolor: 'lightblue' }}>
 
-                <List>
-                    {paginatedEvents.map((event, idx) => (
-                        <React.Fragment key={event.id}>
-                            <ListItem alignItems="flex-start">
-                                <ListItemText
-                                    primary={
-                                        <>
-                                            <Box mt={1} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                <Box display='flex'>
-                                                    <Avatar aria-describedby={"id"} variant="rounded"
-                                                        sx={{ color: 'white', display: { xs: 'none', md: 'flex' }, marginRight: '5px' }} >
-                                                        <AssignmentIcon />
-                                                    </Avatar>
-                                                    <Typography variant="h6" color='primary' component="span"> {event.title}  </Typography>
-                                                </Box>
 
-                                            </Box>
-                                            <Box mt={1} sx={{ alignItems: 'center' }}>
-                                                <Typography variant="body1" color='info' > {event.description}  </Typography>
-
-                                                <Box mt={1} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                    <Box>
-                                                        <Typography variant="caption" color="info">
-                                                            From: {event.startTime ? dayjs(event.startTime).format("DD/MM/YYYY HH:mm") : ""}
-                                                        </Typography>
-                                                        <Typography variant="caption" color="info">
-                                                            To: {event.startTime ? dayjs(event.startTime).format("DD/MM/YYYY HH:mm") : ""}
-                                                        </Typography>
+                {paginatedEvents.length !== 0 && (
+                    <>
+                        <List>
+                            {paginatedEvents.map((event, idx) => (
+                                <React.Fragment key={event.id}>
+                                    <ListItem alignItems="flex-start">
+                                        <ListItemText
+                                            primary={
+                                                <>
+                                                    <Box mt={1} >
+                                                        <Grid container spacing={1}>
+                                                            <Grid size={{ xs: 12, md: 6, lg: 6 }}>
+                                                                <Box display="flex" alignItems="center">
+                                                                    <Avatar aria-describedby="id" variant="rounded" sx={{ color: 'white', display: { xs: 'none', md: 'flex' }, marginRight: '5px', }} >
+                                                                        <AssignmentIcon />
+                                                                    </Avatar>
+                                                                    <Typography variant="h6" color="primary" component="span">
+                                                                        {event.title}
+                                                                    </Typography>
+                                                                </Box>
+                                                            </Grid>
+                                                        </Grid>
                                                     </Box>
 
-                                                    <Box>
-                                                        <Typography variant="caption" color="info" display="block">
-                                                            Created on: {event.createdAt ? dayjs(event.createdAt).format("DD/MM/YYYY HH:mm") : ""}
-                                                        </Typography>
+                                                    <Box mt={1} sx={{ alignItems: 'center' }}>
 
-
+                                                        <Grid container spacing={1}>
+                                                            <Grid size={12}>
+                                                                <Typography variant="body1" color="info"> {event.description} </Typography>
+                                                            </Grid>
+                                                            <Grid size={{ xs: 12, md: 9, lg: 9 }}>
+                                                                <Stack direction={{ xs: 'column', lg: 'row' }} spacing={{ xs: 0.5, lg: 0 }} useFlexGap >
+                                                                    <Typography variant="caption" color="textSecondary">
+                                                                        {`From: ${event.startTime ? dayjs(event.startTime).format("DD/MM/YYYY HH:mm") : ""}, `}
+                                                                    </Typography>
+                                                                    <Typography variant="caption" color="textSecondary">
+                                                                        {`To: ${event.endTime ? dayjs(event.endTime).format("DD/MM/YYYY HH:mm") : ""}, `}
+                                                                    </Typography>
+                                                                    <Typography variant="caption" color="textSecondary">
+                                                                        {`At: ${event.location || ""}`}
+                                                                    </Typography>
+                                                                </Stack>
+                                                            </Grid>
+                                                            <Grid size={{ xs: 12, md: 3, lg: 3 }} sx={{ display: 'flex', justifyContent: { xs: 'flex-start', md: 'flex-end' }, alignItems: 'center' }} >
+                                                                <Typography variant="caption" color="textSecondary">
+                                                                    {`Created on: ${event.createdAt ? dayjs(event.createdAt).format("DD/MM/YYYY HH:mm") : ""}`}
+                                                                </Typography>
+                                                            </Grid>
+                                                            <Grid size={12}>
+                                                                <Stack direction={{ xs: 'column', lg: 'row' }} useFlexGap >
+                                                                    <Typography variant="caption" color="info" component="span">  {`Going: ${event.goingCount} | `} </Typography>
+                                                                    <Typography variant="caption" color="info" component="span">  {`Maybe: ${event.goingCount} | `} </Typography>
+                                                                    <Typography variant="caption" color="info" component="span">  {`Declined: ${event.goingCount}`} </Typography>
+                                                                </Stack>
+                                                            </Grid>
+                                                        </Grid>
                                                     </Box>
-                                                </Box>
+                                                </>
 
-                                            </Box>
-                                        </>
+                                            }
 
-                                    }
+                                        />
 
+                                    </ListItem>
+                                    {idx < paginatedEvents.length - 1 && <Divider component="li" />}
+                                </React.Fragment>
+                            ))}
+                        </List>
+
+                        {itemsPerPage !== 0 && (
+                            <Box mt={4} display="flex" justifyContent="center">
+                                <Pagination
+                                    count={totalPages}
+                                    page={currentPage}
+                                    onChange={handlePageChange}
+                                    color="primary"
+                                    size="small"
+                                    shape="rounded"
+                                    showFirstButton
+                                    showLastButton
                                 />
-
-                            </ListItem>
-
-
-                            {idx < paginatedEvents.length - 1 && <Divider component="li" />}
-                        </React.Fragment>
-                    ))}
-                </List>
-
-                {itemsPerPage !== 0 && (
-                    <Box mt={4} display="flex" justifyContent="center">
-                        <Pagination
-                            count={totalPages}
-                            page={currentPage}
-                            onChange={handlePageChange}
-                            color="primary"
-                            size="small"
-                            shape="rounded"
-                            showFirstButton
-                            showLastButton
-                        />
-                        <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems="center" mb={2} spacing={2} >
-                            <FormControl size="small" sx={{ minWidth: 120 }}>
-                                <InputLabel id="items-per-page-label">Items per page</InputLabel>
-                                <Select size="small"
-                                    labelId="items-per-page-label"
-                                    value={itemsPerPage}
-                                    label="Items per page"
-                                    onChange={handleItemsPerPageChange}
-                                    inputProps={{ 'aria-label': 'items per page' }}
-                                    native={false}  >
-                                    {ITEMS_PER_PAGE_OPTIONS.map((option) => (
-                                        <MenuItem key={option} value={option}> {option === 0 ? 'All' : option}</MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                        </Stack>
-                    </Box>
+                                <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems="center" mb={2} spacing={2} >
+                                    <FormControl size="small" sx={{ minWidth: 120 }}>
+                                        <InputLabel id="items-per-page-label">Items per page</InputLabel>
+                                        <Select size="small"
+                                            labelId="items-per-page-label"
+                                            value={itemsPerPage}
+                                            label="Items per page"
+                                            onChange={handleItemsPerPageChange}
+                                            inputProps={{ 'aria-label': 'items per page' }}
+                                            native={false}  >
+                                            {ITEMS_PER_PAGE_OPTIONS.map((option) => (
+                                                <MenuItem key={option} value={option}> {option === 0 ? 'All' : option}</MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                </Stack>
+                            </Box>
+                        )}
+                    </>
                 )}
+
+                <Box justifyItems="center" pt={5} pb={5}>
+                    {paginatedEvents.length === 0 && (
+                        <Typography variant="caption" color="info" display="block"> No events available at the moment. Please check back later.</Typography>
+                    )}
+                </Box>
             </Box>
-            
+
         </>
 
     );

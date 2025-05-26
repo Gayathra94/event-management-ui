@@ -1,4 +1,3 @@
-import Save from "@mui/icons-material/Save";
 import { } from "@mui/material";
 import { Box, Button, Container, FormControl, FormHelperText, Grid, MenuItem, Paper, Select, Stack, TextField, Typography, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
@@ -14,7 +13,8 @@ import { useGlobalAlert } from "../common/AlertProvider";
 import type { AxiosError } from "axios";
 import { useEffect, useMemo } from "react";
 import SaveAsIcon from '@mui/icons-material/SaveAs';
-export default function ManageEventDialog(props: { mode: string; eventDTO: EventDTO; open: boolean; onClose: () => void }) {
+
+export default function ManageEventDialog(props: { mode: string; eventDTO: EventDTO; open: boolean; onClose: () => void; fetchUpcomingEvents: (page: number, size: number) => void; }) {
 
 
     const { user } = useUser();
@@ -51,6 +51,8 @@ export default function ManageEventDialog(props: { mode: string; eventDTO: Event
             debugger
             if (response.status === 200) {
                 showAlert(`Event has been created successfully.`, "success")
+                props.fetchUpcomingEvents(1, 5);
+                props.onClose();
             }
 
         } catch (err) {
@@ -87,6 +89,8 @@ export default function ManageEventDialog(props: { mode: string; eventDTO: Event
             const response = await updateEvent(eventDTO);
             if (response.status === 200) {
                 showAlert(`Event has been updated successfully.`, "success")
+                props.fetchUpcomingEvents(1, 5);
+                props.onClose();
             }
 
         } catch (err) {

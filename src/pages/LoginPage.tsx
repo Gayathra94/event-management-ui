@@ -31,14 +31,16 @@ const LoginPage = () => {
         try {
             const response = await login(data);
             if (response.data) {
+                debugger
                 getUserDetails().then((response) => {
                     const userData = response.data;
                     console.log('userData', userData);
-                    
+
                     setUser(userData);
                     sessionStorage.setItem('user', JSON.stringify(userData));
                     navigate("/dashboard");
                 }).catch((error) => {
+                    debugger
                     console.error(error);
                     showAlert('Failed to load user data. Please try again later.', "error");
                 });
@@ -46,7 +48,8 @@ const LoginPage = () => {
             }
         } catch (err) {
             const error = err as AxiosError;
-            showAlert(`${error.response?.data}`, "error")
+            const errorMessage = error.response?.data || 'Something went wrong.';
+            showAlert(`${errorMessage}`, "error")
         }
     };
 
@@ -57,7 +60,7 @@ const LoginPage = () => {
     }
 
     return (
-        <Box sx={{  height: "100vh", width: "100vw",  display: "flex",  justifyContent: "center",  alignItems: "center", }} >
+        <Box sx={{ height: "100vh", width: "100vw", display: "flex", justifyContent: "center", alignItems: "center", }} >
 
             <Paper elevation={3} sx={{ p: 4, width: "90%", maxWidth: 400, py: "60px", px: "30px", borderRadius: "20px", opacity: 0.96, my: { md: 0, xs: 5 }, mx: { md: 0, xs: 5 }, textAlign: "center" }}>
                 <Stack direction="column" alignItems="center" spacing={2} sx={{ marginBottom: '20px' }}>
@@ -225,7 +228,7 @@ function CreateUser(props: { enableCreateUser: boolean, setEnableCreateUser: Rea
                                 }} />
                             )}
                         />
-                          <FormHelperText>{errors.name?.message}</FormHelperText>
+                        <FormHelperText>{errors.name?.message}</FormHelperText>
                     </FormControl>
                 </Grid>
                 <Grid size={12}>

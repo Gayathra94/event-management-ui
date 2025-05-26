@@ -13,10 +13,11 @@ import { useGlobalAlert } from '../common/AlertProvider';
 import { attendEvent, deleteEvent } from '../services/event-service';
 import type { AxiosError } from 'axios';
 import type { AttendanceRequest } from '../model/AttendanceRequest';
+import EmojiPeopleIcon from '@mui/icons-material/EmojiPeople';
 
 const options = ['GOING', 'MAYBE', 'DECLINED'];
 
-export default function AttendButtonGroup(props: { eventId: string }) {
+export default function AttendButtonGroup(props: { eventId: string; onUpdate : (page: number, size: number) => void }) {
 
 
   const { user } = useUser();
@@ -39,6 +40,7 @@ export default function AttendButtonGroup(props: { eventId: string }) {
       const response = await attendEvent(attendanceRequest);
       if (response.status == 200) {
         showAlert(`Attendance updated successfully!` , "success")
+        props.onUpdate(1,2);
       }
     } catch (err) {
       const error = err as AxiosError;
@@ -65,8 +67,8 @@ export default function AttendButtonGroup(props: { eventId: string }) {
     <React.Fragment>
       <ButtonGroup size='small' ref={anchorRef}  >
         <Tooltip title="Attendance">
-          <IconButton onClick={handleToggle} color='secondary'>
-            <ListIcon />
+          <IconButton sx={{margin:'0', padding:'0'}} onClick={handleToggle} color='secondary'>
+            <EmojiPeopleIcon />
           </IconButton>
         </Tooltip>
       </ButtonGroup>

@@ -8,8 +8,8 @@ import InputLabel from "@mui/material/InputLabel";
 import TextField from "@mui/material/TextField";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Grid } from "@mui/material";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 
 
 interface PaymentSearchProps {
@@ -22,13 +22,13 @@ interface PaymentSearchProps {
 export default function EventFilterDialog({ open, onClose, onApplyFilters, onRestFilters }: PaymentSearchProps) {
 
     const [localFilters, setLocalFilters] = React.useState({
-        hostName: '',
+        title: '',
         startTime: null,
         endTime: null,
     });
     React.useEffect(() => {
         if (open) {
-            setLocalFilters({ hostName: '', startTime: null, endTime: null });
+            setLocalFilters({ title: '', startTime: null, endTime: null });
         }
     }, [open]);
 
@@ -42,7 +42,7 @@ export default function EventFilterDialog({ open, onClose, onApplyFilters, onRes
     };
 
     const resetFilters = () => {
-        setLocalFilters({ hostName: '', startTime: null, endTime: null });
+        setLocalFilters({ title: '', startTime: null, endTime: null });
         onRestFilters(localFilters)
         onClose();
     };
@@ -56,23 +56,23 @@ export default function EventFilterDialog({ open, onClose, onApplyFilters, onRes
                     <Grid size={{ xs: 12, md: 12, lg: 12 }}>
                         <Grid container spacing={2}>
                             <Grid size={{ xs: 12, md: 12, lg: 12 }} >
-                                <InputLabel >Find by</InputLabel>
+                                <InputLabel >Title</InputLabel>
 
-                                <TextField fullWidth  variant="outlined" size="small" value={localFilters.hostName}
-                                    onChange={(e) => handleFilterChange('hostName', e.target.value)}></TextField>
+                                <TextField fullWidth  variant="outlined" size="small" value={localFilters.title}
+                                    onChange={(e) => handleFilterChange('title', e.target.value)}></TextField>
                             </Grid>
 
                             <Grid size={{ xs: 12, md: 12, lg: 12 }}>
                                 <InputLabel >Start At</InputLabel>
                                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                    <DatePicker value={localFilters.startTime} onChange={(date) => handleFilterChange('startTime', date)}
+                                    <DateTimePicker value={localFilters.startTime} onChange={(date) => handleFilterChange('startTime', date)}
                                         slotProps={{ textField: { id: 'start-date-picker', fullWidth: true, variant: 'outlined', size: 'small' }, }} />
                                 </LocalizationProvider>
                             </Grid>
                             <Grid size={{ xs: 12, md: 12, lg: 12 }}>
                                 <InputLabel >End at</InputLabel>
                                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                    <DatePicker value={localFilters.endTime} onChange={(date) => handleFilterChange('endTime', date)}
+                                    <DateTimePicker value={localFilters.endTime} onChange={(date) => handleFilterChange('endTime', date)}
                                         slotProps={{ textField: { id: 'end-date-picker', fullWidth: true, variant: 'outlined', size: 'small' }, }} />
                                 </LocalizationProvider>
                             </Grid>

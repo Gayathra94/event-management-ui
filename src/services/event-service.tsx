@@ -8,9 +8,14 @@ export const createEvent = async (eventDTO: EventDTO) => {
   return await axios.post(`${CONTROLLER}/createEvent`, eventDTO,  { withCredentials: true});
 };
 
-export const getListUpcomingEvents = async () => {
-  return await axios.get(`${CONTROLLER}/getListUpcomingEvents`,{ withCredentials: true});
+export const getListUpcomingEvents = async (page: number, size: number) => {
+  return await axios.get(`${CONTROLLER}/getListUpcomingEvents`, {
+    params: { page, size },
+    withCredentials: true,
+  });
 };
+
+
 
 export const updateEvent = async (updatedEventDTO: EventDTO) => {
   return await axios.put(`${CONTROLLER}/updateEvent`, updatedEventDTO,  { withCredentials: true});

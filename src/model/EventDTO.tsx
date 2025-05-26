@@ -15,4 +15,7 @@ export interface EventDTO {
     endTimeStr?: string;
     createdAtSt?: string;
     updatedAtStr?: string;
+    goingCount?:number;
+    maybeCount?:number;
+    declinedCount?:number;
 }
