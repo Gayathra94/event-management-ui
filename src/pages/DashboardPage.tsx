@@ -63,8 +63,11 @@ export default function DashboardPage() {
         if (itemsPerPage === 0) {
             setPaginatedEvents(eventList);
             setCurrentPage(1);
+            console.log(eventList);
+            
         } else {
             setPaginatedEvents(eventList);
+              console.log(eventList);
         }
     }, [currentPage, itemsPerPage, eventList]);
 
@@ -209,10 +212,11 @@ export default function DashboardPage() {
                                                             </Grid>
                                                             <Grid size={12}>
                                                                 <Stack direction={{ xs: 'column', lg: 'row' }} useFlexGap >
-                                                                    <Typography variant="caption" color="info" component="span">  {`Going: ${event.goingCount} | `} </Typography>
-                                                                    <Typography variant="caption" color="info" component="span">  {`Maybe: ${event.goingCount} | `} </Typography>
-                                                                    <Typography variant="caption" color="info" component="span">  {`Declined: ${event.goingCount}`} </Typography>
-                                                                </Stack>
+  <Typography variant="caption" color="info" component="span">  {`Going: ${event.goingCount} | `} </Typography>
+  <Typography variant="caption" color="info" component="span">  {`Maybe: ${event.maybeCount} | `} </Typography>
+  <Typography variant="caption" color="info" component="span">  {`Declined: ${event.declinedCount}`} </Typography>
+</Stack>
+
                                                             </Grid>
                                                         </Grid>
                                                     </Box>
