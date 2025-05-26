@@ -121,8 +121,8 @@ export default function DashboardPage() {
     return (
         <>
             <Box maxWidth="lg" mx="auto" mt={5} p={1} sx={{ borderRadius: '10px', bgcolor: 'lightblue' }}>
-                {paginatedEvents && (
-                    <>
+               
+               
                         <Box display="flex" justifyContent="right" m={1} sx={{ borderRadius: '10px', bgcolor: '#b8bfc1' }}>
 
                             <Grid container spacing={1}>
@@ -140,6 +140,7 @@ export default function DashboardPage() {
                                 </Grid>
                             </Grid>
                         </Box>
+                         {eventList.length !==0 && (     <>
                         <List>
                             {paginatedEvents.map((event, idx) => (
                                 <React.Fragment key={event.id}>
@@ -263,7 +264,7 @@ export default function DashboardPage() {
                 )}
 
                 <Box justifyItems="center" pt={5} pb={5}>
-                    {!paginatedEvents && (
+                    {eventList.length ===0 && (
                         <Typography variant="caption" color="info" display="block"> No events available at the moment. Please check back later.</Typography>
                     )}
                 </Box>
