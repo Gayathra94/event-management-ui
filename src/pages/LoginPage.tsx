@@ -31,7 +31,7 @@ const LoginPage = () => {
         try {
             const response = await login(data);
             if (response.data) {
-                debugger
+                //debugger
                 getUserDetails().then((response) => {
                     const userData = response.data;
                     console.log('userData', userData);
@@ -40,7 +40,7 @@ const LoginPage = () => {
                     sessionStorage.setItem('user', JSON.stringify(userData));
                     navigate("/dashboard");
                 }).catch((error) => {
-                    debugger
+                    //debugger
                     console.error(error);
                     showAlert('Failed to load user data. Please try again later.', "error");
                 });

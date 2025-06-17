@@ -1,19 +1,19 @@
-import axios from 'axios';
 import type { UserDTO } from '../model/UserDTO';
+import api from '../common/AxiosConfig';
 
-const CONTROLLER = "http://localhost:8080/ems/auth";
+const CONTROLLER_NAME = "/auth";
 
 export const createUser = async (user: UserDTO) => {
-  return await axios.post(`${CONTROLLER}/createUser`, user);
+  return await api.post(`${CONTROLLER_NAME}/createUser`, user);
 };
 
 export const login = async ({ username, password }: { username: string; password: string }) => {
-  return await axios.post(`${CONTROLLER}/login`, { username, password}, { withCredentials: true});
+  return await api.post(`${CONTROLLER_NAME}/login`, { username, password}, { withCredentials: true});
 }
 
 export const logout = async () => {
   try {
-    const response = await axios.get(`${CONTROLLER}/logout`, { withCredentials: true,});
+    const response = await api.get(`${CONTROLLER_NAME}/logout`, { withCredentials: true,});
     return response;
   } catch (error) {
     console.error('Logout failed:', error);

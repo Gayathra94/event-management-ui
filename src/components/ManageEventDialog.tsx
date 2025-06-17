@@ -48,7 +48,7 @@ export default function ManageEventDialog(props: { mode: string; eventDTO: Event
         eventDTO.hostId = user.id;
         try {
             const response = await createEvent(eventDTO);
-            debugger
+            //debugger
             if (response.status === 200) {
                 showAlert(`Event has been created successfully.`, "success")
                 props.fetchUpcomingEvents(1, 5);
@@ -57,7 +57,7 @@ export default function ManageEventDialog(props: { mode: string; eventDTO: Event
 
         } catch (err) {
             const error = err as AxiosError<{ code: string; message: string }>;
-            debugger;
+            //debugger;
             if (error.status == 500) {
                 if (error.response?.data?.code === '1001') {
                     const errorMessage = error.response?.data?.message || 'Something went wrong.';
@@ -95,7 +95,7 @@ export default function ManageEventDialog(props: { mode: string; eventDTO: Event
 
         } catch (err) {
             const error = err as AxiosError<{ code: string; message: string }>;
-            debugger;
+            //debugger;
             if (error.status == 500) {
                 if (error.response?.data?.code === '1003') {
                     const errorMessage = error.response?.data?.message || 'Something went wrong.';

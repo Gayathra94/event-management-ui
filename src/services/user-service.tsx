@@ -1,8 +1,8 @@
-import axios from "axios"
+import api from "../common/AxiosConfig";
 
-const CONTROLLER = "http://localhost:8080/ems/user";
+const CONTROLLER_NAME = "/user";
 
 export const getUserDetails = async () => {
-    return await axios.get(`${CONTROLLER}/getUserDetails`, {withCredentials: true });
+    return await api.get(`${CONTROLLER_NAME}/getUserDetails`, {withCredentials: true });
 };
 
